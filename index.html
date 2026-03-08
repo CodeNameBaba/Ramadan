@@ -1,142 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chhapara Ramadan Tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chhapara Ramadan Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri&family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap');
 
-<link rel="stylesheet" href="style.css">
-<script src="script.js" defer></script>
+        :root {
+            --bg-color: #080808;
+            --neon-dark-green: #00e600;
+            --neon-glow: 0 0 5px #003300, 0 0 15px #008800, 0 0 30px #00cc00;
+        }
 
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 90px; 
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            overflow-x: hidden;
+            color: #e6e8ea;
+            min-height: 100vh;
+        }
+
+        /* --- FIXED TOP NAVIGATION --- */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 204, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Hamburger Menu */
+        #menuToggle {
+            position: relative;
+            margin-left: 25px;
+            z-index: 1001;
+            user-select: none;
+        }
+        #menuToggle input { display: block; width: 40px; height: 32px; position: absolute; top: -7px; left: -5px; cursor: pointer; opacity: 0; z-index: 2; }
+        #menuToggle span { display: block; width: 33px; height: 4px; margin-bottom: 5px; position: relative; background: #e6e8ea; border-radius: 3px; z-index: 1; transform-origin: 4px 0px; transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0), background 0.5s cubic-bezier(0.77,0.2,0.05,1.0), opacity 0.55s ease; }
+        #menuToggle input:checked ~ span { opacity: 1; transform: rotate(45deg) translate(-2px, -1px); background: var(--neon-dark-green); }
+        #menuToggle input:checked ~ span:nth-last-child(3) { opacity: 0; transform: rotate(0deg) scale(0.2, 0.2); }
+        #menuToggle input:checked ~ span:nth-last-child(2) { transform: rotate(-45deg) translate(0, -1px); }
+        
+        #menu { 
+            position: absolute; 
+            width: 250px; 
+            margin: -30px 0 0 -25px; 
+            padding: 100px 50px 50px 25px; 
+            background: #0a0a0a; 
+            list-style-type: none; 
+            transform-origin: 0% 0%; 
+            transform: translate(-100%, 0); 
+            transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0); 
+            border-right: 2px solid var(--neon-dark-green); 
+            min-height: 100vh; 
+            text-align: left;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.8);
+        }
+        #menu li { padding: 15px 0; font-size: 1.2rem; transition: color 0.3s ease; border-bottom: 1px solid #222;}
+        #menu a { color: #e6e8ea; text-decoration: none; display: block; }
+        #menu a:hover { color: var(--neon-dark-green); }
+        #menuToggle input:checked ~ #menu { transform: none; }
+
+        .header-kalma { height: 45px; margin-right: 20px; object-fit: contain; filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.2)); }
+
+        /* --- SPA VIEW LOGIC --- */
+        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- STYLING --- */
+        .metallic-text { color: #e6e8ea; text-shadow: 1px 1px 1px #7a7c80, -1px -1px 1px #ffffff33; }
+        .location-date { margin-bottom: 20px; font-weight: 300; }
+        
+        .hijri-date-container { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px; margin: 10px auto; max-width: 90%; border: 1px solid #333; }
+        .hijri-eng { font-size: 1.1rem; font-weight: 600; color: var(--neon-dark-green); }
+        .hijri-urdu { font-family: 'Amiri', serif; font-size: 1.5rem; color: #ccc; margin-top: 5px;}
+        .ramadan-badge { display: inline-block; margin-top: 5px; padding: 6px 18px; background: rgba(0, 204, 0, 0.1); border: 1px solid var(--neon-dark-green); border-radius: 20px; color: var(--neon-dark-green); font-weight: 600; font-size: 0.95rem; box-shadow: 0 0 15px rgba(0, 204, 0, 0.15); }
+
+        .clock-display-panel { background: #030a03; border: 2px solid #004400; border-radius: 15px; padding: 20px; margin: 15px auto; max-width: 90%; position: relative; box-shadow: inset 0 0 25px rgba(0, 255, 0, 0.08), 0 5px 15px rgba(0,0,0,0.8); overflow: hidden; }
+        .clock-display-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40%; background: linear-gradient(rgba(255,255,255,0.05), transparent); pointer-events: none; }
+        .neon-clock { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: var(--neon-dark-green); text-shadow: var(--neon-glow); margin: 5px 0; letter-spacing: 2px; }
+        .urdu-text { font-family: 'Amiri', serif; font-size: 4.5rem; line-height: 1.1; letter-spacing: 0; }
+        .small-neon { font-size: 2.2rem; }
+        .small-urdu-neon { font-size: 3rem; }
+
+        .dual-countdown { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .countdown-box { background: #020802; border: 1px solid #003300; border-radius: 10px; padding: 10px; box-shadow: inset 0 0 10px rgba(0,200,0,0.1); }
+
+        .card-container { background: #111; margin: 20px auto; padding: 25px 20px; width: 90%; max-width: 600px; border-radius: 15px; border: 1px solid #2a2a2a; box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+        
+        #next-event { margin-top: 0; line-height: 1.4; }
+        .arabic-text { font-family: 'Amiri', serif; font-size: 2rem; margin: 15px 0; line-height: 1.6; color: var(--neon-dark-green); text-shadow: 0 0 5px rgba(0, 204, 0, 0.4); }
+        .translit-text { font-style: italic; font-size: 0.95rem; margin-bottom: 10px; }
+        .translat-text { font-weight: 300; font-size: 0.9rem; color: #aaa; margin-bottom: 10px; }
+        .urdu-tarjuma { font-family: 'Amiri', serif; font-size: 1.4rem; color: #fff; margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;}
+
+        /* Tasbeeh */
+        .counter-display { font-size: 3rem; font-weight: 600; margin: 10px 0; color: var(--neon-dark-green); text-shadow: var(--neon-glow);}
+        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+        .metallic-btn { flex: 1; max-width: 150px; background: linear-gradient(145deg, #d3d4d8, #9ea0a5); color: #111; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
+        .metallic-btn:active { background: linear-gradient(145deg, #9ea0a5, #d3d4d8); transform: scale(0.98);}
+        .reset-btn { flex: 0.5; max-width: 100px; background: transparent; border: 1px solid #7a7c80; color: #e6e8ea; padding: 10px 20px; border-radius: 25px; cursor: pointer; }
+
+        /* Timetable Table Styles */
+        .timetable-wrapper { overflow-x: auto; margin-top: 20px; border-radius: 10px; border: 1px solid #333; }
+        table { width: 100%; border-collapse: collapse; text-align: center; color: #fff; }
+        th { background: #003300; color: var(--neon-dark-green); padding: 12px 10px; font-weight: 600; position: sticky; top: 0; }
+        td { padding: 10px; border-bottom: 1px solid #222; }
+        tr:nth-child(even) { background-color: #0a0a0a; }
+        tr.today-row { background-color: rgba(0, 204, 0, 0.15); border: 1px solid var(--neon-dark-green); font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
-<nav role="navigation">
-<div id="menuToggle">
+    <nav class="top-nav" role="navigation">
+        <div id="menuToggle">
+            <input type="checkbox" id="menu-checkbox" />
+            <span></span>
+            <span></span>
+            <span></span>
+            <ul id="menu">
+                <li><a href="#" onclick="switchView('home-view')">🏠 Home</a></li>
+                <li><a href="#" onclick="switchView('timetable-view')">📅 Full Timetable</a></li>
+                <li><a href="#" onclick="switchView('duas-view')">🤲 Ramadan Duas</a></li>
+            </ul>
+        </div>
+        <img src="kalma-image.jpg" alt="Kalmah" class="header-kalma">
+    </nav>
 
-<input type="checkbox"/>
+    <main>
+        <div id="home-view" class="view-section active">
+            <div class="location-date metallic-text">
+                <p style="font-size: 1.1rem; font-weight: 400; margin-bottom: 5px;">📍 Chhapara, Seoni</p>
+                <p id="gregorian-date" style="color: #aaa; font-size: 0.9rem; margin-top: 0;">Loading...</p>
+                
+                <div class="hijri-date-container">
+                    <div id="hijri-eng" class="hijri-eng">Loading Hijri...</div>
+                    <div id="hijri-urdu" class="hijri-urdu">...</div>
+                </div>
+                <div id="ramadan-tracker" class="ramadan-badge">Loading Tracker...</div>
+            </div>
 
-<span></span>
-<span></span>
-<span></span>
+            <section class="clock-display-panel">
+                <div id="eng-clock" class="neon-clock">00:00:00</div>
+                <div style="width: 80%; height: 1px; background: #003300; margin: 15px auto;"></div>
+                <div id="urdu-clock" class="neon-clock urdu-text">٠٠:٠٠:٠٠</div>
+            </section>
 
-<ul id="menu">
+            <section class="card-container metallic-text">
+                <h2 id="next-event">Loading...</h2>
+                <p id="target-time" style="color: #888; margin-top: -10px;">Time: --:--</p>
+                <div class="dual-countdown">
+                    <div class="countdown-box">
+                        <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666; text-transform: uppercase;">English Timer</p>
+                        <div id="countdown-eng" class="neon-clock small-neon">00:00:00</div>
+                    </div>
+                    <div class="countdown-box">
+                        <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666; font-family: 'Amiri', serif;">اردو ٹائمر</p>
+                        <div id="countdown-urdu" class="neon-clock urdu-text small-urdu-neon">٠٠:٠٠:٠٠</div>
+                    </div>
+                </div>
+            </section>
 
-<a href="#"><li>Home</li></a>
-<a href="#"><li>Full Timetable</li></a>
-<a href="#"><li>Qibla Compass</li></a>
-<a href="#"><li>Settings</li></a>
+            <section class="card-container metallic-text">
+                <h3 id="dua-title">Dua</h3>
+                <p id="dua-arabic" class="arabic-text"></p>
+                <p id="dua-translit" class="translit-text"></p>
+                <p id="dua-translat" class="translat-text"></p>
+                <p id="dua-urdu" class="urdu-tarjuma"></p>
+            </section>
 
-</ul>
+            <section class="card-container metallic-text">
+                <h3>Quick Tasbeeh</h3>
+                <div id="tasbeeh-count" class="counter-display">0</div>
+                <div class="btn-group">
+                    <button id="tasbeeh-btn" class="metallic-btn">Tap</button>
+                    <button id="reset-btn" class="reset-btn">Reset</button>
+                </div>
+            </section>
+        </div>
 
-</div>
-</nav>
+        <div id="timetable-view" class="view-section">
+            <h2 class="metallic-text">Ramadan Timetable</h2>
+            <p style="color:#aaa; font-size:0.9rem;">Chhapara, Seoni (1447 Hijri)</p>
+            <div class="card-container" style="padding: 10px;">
+                <div class="timetable-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roza</th>
+                                <th>Date</th>
+                                <th>Suhoor</th>
+                                <th>Iftar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetable-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
+        <div id="duas-view" class="view-section">
+            <h2 class="metallic-text">Essential Duas</h2>
+            
+            <div class="card-container">
+                <h3 style="color: var(--neon-dark-green);">Dua for Suhoor (سحری کی دعا)</h3>
+                <p class="arabic-text">نَوَيْتُ أَنْ أَصُومَ غَدًا لِلَّهِ تَعَالَى مِنْ فَرْضِ رَمَضَانَ هَذَا</p>
+                <p class="translit-text">Nawaitu an asuma gadal'lillahi ta'aala min farzy Ramazan haaza.</p>
+                <p class="translat-text">"I intend to keep the fast for tomorrow for Allah from the obligation of this Ramadan."</p>
+                <p class="urdu-tarjuma">میں نے کل کے رمضان کے فرض روزے کی نیت کی اللہ تعالیٰ کے لیے۔</p>
+            </div>
 
+            <div class="card-container">
+                <h3 style="color: var(--neon-dark-green);">Dua for Iftar (افطار کی دعا)</h3>
+                <p class="arabic-text">اللَّهُمَّ إِنِّي لَكَ صُمْتُ وَبِكَ امَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْطَرْتُ</p>
+                <p class="translit-text">Allahumma inni laka sumtu, wa bika aamantu, wa 'alayka tawakkaltu, wa 'ala rizq-ika aftartu.</p>
+                <p class="translat-text">"O Allah! I fasted for You and I believe in You and I put my trust in You and I break my fast with Your sustenance."</p>
+                <p class="urdu-tarjuma">اے اللہ! میں نے تیرے لیے روزہ رکھا اور تجھ پر ایمان لایا اور تجھ پر بھروسہ کیا اور تیرے رزق پر افطار کیا۔</p>
+            </div>
 
-<header class="main-header">
+            <div class="card-container">
+                <h3 style="color: var(--neon-dark-green);">First Ashra (Days 1-10: Mercy)</h3>
+                <p class="arabic-text">رَبِّ اغْفِرْ وَارْحَمْ وَأَنْتَ خَيْرُ الرَّاحِمِينَ</p>
+                <p class="translit-text">Rabbighfir warham wa anta khairur raahimeen.</p>
+                <p class="translat-text">"O My Lord, forgive and have mercy, and You are the best of the merciful."</p>
+                <p class="urdu-tarjuma">اے میرے رب! بخش دے اور رحم فرما، اور تو ہی سب سے بہتر رحم فرمانے والا ہے۔</p>
+            </div>
 
-<div class="location-date metallic-text">
-<p>📍 Chhapara, Seoni</p>
-<p id="hijri-date">Loading date...</p>
-</div>
+            <div class="card-container">
+                <h3 style="color: var(--neon-dark-green);">Second Ashra (Days 11-20: Forgiveness)</h3>
+                <p class="arabic-text">أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ</p>
+                <p class="translit-text">Astaghfirullaha rabbi min kulli dhanbin wa atoobu ilayh.</p>
+                <p class="translat-text">"I seek forgiveness from Allah, my Lord, from every sin, and I turn to Him in repentance."</p>
+                <p class="urdu-tarjuma">میں اللہ سے اپنے تمام گناہوں کی بخشش مانگتا ہوں جو میرا رب ہے اور اسی کی طرف رجوع کرتا ہوں۔</p>
+            </div>
 
-<div class="kalma-container">
-<img src="kalma-image.jpg" class="kalmah-img">
-</div>
+            <div class="card-container">
+                <h3 style="color: var(--neon-dark-green);">Third Ashra (Days 21-30: Protection)</h3>
+                <p class="arabic-text">اللَّهُمَّ أَجِرْنِي مِنَ النَّارِ</p>
+                <p class="translit-text">Allahumma ajirni minan naar.</p>
+                <p class="translat-text">"O Allah, save me from the fire of Hell."</p>
+                <p class="urdu-tarjuma">اے اللہ! مجھے جہنم کی آگ سے نجات دے۔</p>
+            </div>
+        </div>
 
-</header>
+    </main>
 
+    <audio id="suhoor-audio" src="suhoor-azan.mp3"></audio>
+    <audio id="iftar-audio" src="iftar-azan.mp3"></audio>
 
+    <script>
+        // SPA View Switcher Logic
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            
+            // Auto-close hamburger menu
+            document.getElementById('menu-checkbox').checked = false;
+            window.scrollTo(0, 0);
+        }
 
-<main>
+        const duas = {
+            suhoor: {
+                title: "Next: Suhoor <br><span style='font-family: Amiri, serif; font-size: 1.8rem; font-weight: normal; color: #ccc;'>اگلی سحری</span>",
+                arabic: "نَوَيْتُ أَنْ أَصُومَ غَدًا لِلَّهِ تَعَالَى مِنْ فَرْضِ رَمَضَانَ هَذَا",
+                translit: "Nawaitu An Asuma Gadal'Lillahi Ta'aala Min Farzy RAMAZAN haaza",
+                translat: '"I intend to keep the fast for tomorrow for Allah from the obligation of this Ramadan."',
+                urdu: "میں نے کل کے رمضان کے فرض روزے کی نیت کی اللہ تعالیٰ کے لیے۔"
+            },
+            iftar: {
+                title: "Next: Iftar <br><span style='font-family: Amiri, serif; font-size: 1.8rem; font-weight: normal; color: #ccc;'>اگلا افطار</span>",
+                arabic: "اللَّهُمَّ إِنِّي لَكَ صُمْتُ وَبِكَ امَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْطَرْتُ",
+                translit: "Allahumma inni laka sumtu, wa bika aamantu, wa 'alayka tawakkaltu, wa 'ala rizq-ika aftartu",
+                translat: '"O Allah! I fasted for You and I believe in You and I put my trust in You and I break my fast with Your sustenance."',
+                urdu: "اے اللہ! میں نے تیرے لیے روزہ رکھا اور تجھ پر ایمان لایا اور تجھ پر بھروسہ کیا اور تیرے رزق پر افطار کیا۔"
+            }
+        };
 
-<section class="swipe-wrapper">
+        const schedule = [
+          { "date": "2026-02-19", "suhoor": "05:22:00", "iftar": "18:17:00" },
+          { "date": "2026-02-20", "suhoor": "05:22:00", "iftar": "18:17:00" },
+          { "date": "2026-02-21", "suhoor": "05:21:00", "iftar": "18:18:00" },
+          { "date": "2026-02-22", "suhoor": "05:21:00", "iftar": "18:18:00" },
+          { "date": "2026-02-23", "suhoor": "05:20:00", "iftar": "18:19:00" },
+          { "date": "2026-02-24", "suhoor": "05:20:00", "iftar": "18:19:00" },
+          { "date": "2026-02-25", "suhoor": "05:19:00", "iftar": "18:19:00" },
+          { "date": "2026-02-26", "suhoor": "05:19:00", "iftar": "18:19:00" },
+          { "date": "2026-02-27", "suhoor": "05:18:00", "iftar": "18:20:00" },
+          { "date": "2026-02-28", "suhoor": "05:17:00", "iftar": "18:20:00" },
+          { "date": "2026-03-01", "suhoor": "05:16:00", "iftar": "18:21:00" },
+          { "date": "2026-03-02", "suhoor": "05:15:00", "iftar": "18:21:00" },
+          { "date": "2026-03-03", "suhoor": "05:14:00", "iftar": "18:22:00" },
+          { "date": "2026-03-04", "suhoor": "05:13:00", "iftar": "18:22:00" },
+          { "date": "2026-03-05", "suhoor": "05:12:00", "iftar": "18:23:00" },
+          { "date": "2026-03-06", "suhoor": "05:12:00", "iftar": "18:23:00" },
+          { "date": "2026-03-07", "suhoor": "05:11:00", "iftar": "18:24:00" },
+          { "date": "2026-03-08", "suhoor": "05:11:00", "iftar": "18:24:00" },
+          { "date": "2026-03-09", "suhoor": "05:10:00", "iftar": "18:25:00" },
+          { "date": "2026-03-10", "suhoor": "05:09:00", "iftar": "18:25:00" },
+          { "date": "2026-03-11", "suhoor": "05:08:00", "iftar": "18:25:00" },
+          { "date": "2026-03-12", "suhoor": "05:07:00", "iftar": "18:25:00" },
+          { "date": "2026-03-13", "suhoor": "05:06:00", "iftar": "18:26:00" },
+          { "date": "2026-03-14", "suhoor": "05:05:00", "iftar": "18:26:00" },
+          { "date": "2026-03-15", "suhoor": "05:04:00", "iftar": "18:27:00" },
+          { "date": "2026-03-16", "suhoor": "05:03:00", "iftar": "18:27:00" },
+          { "date": "2026-03-17", "suhoor": "05:02:00", "iftar": "18:27:00" },
+          { "date": "2026-03-18", "suhoor": "05:01:00", "iftar": "18:27:00" },
+          { "date": "2026-03-19", "suhoor": "05:00:00", "iftar": "18:28:00" },
+          { "date": "2026-03-20", "suhoor": "05:00:00", "iftar": "18:28:00" }
+        ];
 
-<div class="swipe-container" id="clock-slider">
+        let azanPlayedFor = null; 
 
-<div class="swipe-item">
-<div id="eng-clock" class="neon-clock">00:00:00</div>
-</div>
+        // --- BULLETPROOF HELPER FUNCTIONS ---
+        function parseSafeDate(dateStr, timeStr) {
+            const [year, month, day] = dateStr.split('-');
+            const [hours, minutes, seconds] = timeStr.split(':');
+            return new Date(year, month - 1, day, hours, minutes, seconds);
+        }
 
-<div class="swipe-item">
-<div id="urdu-clock" class="neon-clock urdu-text">٠٠:٠٠:٠٠</div>
-</div>
+        function getLocalDateString(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-</div>
+        function toUrduDigits(numStr) {
+            const urduDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return numStr.replace(/\d/g, d => urduDigits[d]);
+        }
 
-<div class="swipe-dots">
-<span class="dot active"></span>
-<span class="dot"></span>
-</div>
+        function formatAmPm(timeStr) {
+            const [h, m] = timeStr.split(':');
+            let hour = parseInt(h);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            hour = hour % 12 || 12;
+            return `${String(hour).padStart(2, '0')}:${m} ${ampm}`;
+        }
 
-</section>
+        // Generate Timetable HTML Dynamically
+        function buildTimetable() {
+            const tbody = document.getElementById('timetable-body');
+            const todayStr = getLocalDateString(new Date());
+            let html = "";
 
+            schedule.forEach((day, index) => {
+                const dateObj = new Date(day.date);
+                const displayDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const isToday = day.date === todayStr ? 'class="today-row"' : '';
+                
+                html += `<tr ${isToday}>
+                    <td>${index + 1}</td>
+                    <td>${displayDate}</td>
+                    <td>${formatAmPm(day.suhoor)}</td>
+                    <td>${formatAmPm(day.iftar)}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
 
+        function setCustomDates(now) {
+            const gregOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('gregorian-date').innerText = now.toLocaleDateString('en-US', gregOptions);
 
-<section class="event-container metallic-text">
+            const todayStr = getLocalDateString(now);
+            const todayIndex = schedule.findIndex(d => d.date === todayStr);
 
-<h2 id="next-event">Loading...</h2>
+            const hEng = document.getElementById('hijri-eng');
+            const hUrdu = document.getElementById('hijri-urdu');
+            const rTracker = document.getElementById('ramadan-tracker');
 
-<div id="countdown" class="neon-clock small-neon">00:00:00</div>
+            if (todayIndex !== -1) {
+                let ramadanDay = todayIndex + 1;
+                let taraweehDay = ramadanDay + 1; 
+                hEng.innerText = `${ramadanDay} Ramadan 1447 Hijri`;
+                hUrdu.innerText = `${toUrduDigits(ramadanDay.toString())} رمضان ١٤٤٧ ہجری`;
+                rTracker.innerText = `🌙 Ramadan: ${ramadanDay} | Taraweeh: ${taraweehDay}`;
+            } else {
+                hEng.innerText = `Awaiting Ramadan 1447`;
+                hUrdu.innerText = `رمضان ١٤٤٧ کا انتظار ہے`;
+                rTracker.innerText = `🌙 Ramadan Tracker`;
+            }
+        }
 
-<p id="target-time">Time: --:--</p>
+        // --- MAIN LOOP ---
+        function updateClocksAndEvents() {
+            const now = new Date();
+            
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('eng-clock').innerText = timeString;
+            document.getElementById('urdu-clock').innerText = toUrduDigits(timeString);
 
-</section>
+            setCustomDates(now);
 
+            let targetTime;
+            let eventType;
 
+            const todayStr = getLocalDateString(now);
+            const todayData = schedule.find(d => d.date === todayStr);
 
-<section class="dua-container metallic-text">
+            if (!todayData) {
+                document.getElementById('next-event').innerText = "Schedule not available for today.";
+                return; 
+            }
 
-<h3 id="dua-title">Dua</h3>
+            const suhoorTime = parseSafeDate(todayStr, todayData.suhoor);
+            const iftarTime = parseSafeDate(todayStr, todayData.iftar);
 
-<p id="dua-arabic" class="arabic-text"></p>
+            if (now < suhoorTime) {
+                targetTime = suhoorTime;
+                eventType = 'suhoor';
+            } else if (now < iftarTime) {
+                targetTime = iftarTime;
+                eventType = 'iftar';
+            } else {
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowStr = getLocalDateString(tomorrow);
+                const tomorrowData = schedule.find(d => d.date === tomorrowStr);
+                
+                if (tomorrowData) {
+                    targetTime = parseSafeDate(tomorrowStr, tomorrowData.suhoor);
+                    eventType = 'suhoor';
+                } else {
+                    document.getElementById('next-event').innerText = "End of schedule.";
+                    return;
+                }
+            }
 
-<p id="dua-translit" class="translit-text"></p>
+            document.getElementById('next-event').innerHTML = duas[eventType].title;
+            document.getElementById('target-time').innerText = `Time: ${targetTime.toLocaleTimeString('en-US', {hour12: true})}`;
+            document.getElementById('dua-title').innerText = `Dua for ${eventType.charAt(0).toUpperCase() + eventType.slice(1)}`;
+            document.getElementById('dua-arabic').innerText = duas[eventType].arabic;
+            document.getElementById('dua-translit').innerText = duas[eventType].translit;
+            document.getElementById('dua-translat').innerText = duas[eventType].translat;
+            document.getElementById('dua-urdu').innerText = duas[eventType].urdu;
 
-<p id="dua-translat" class="translat-text"></p>
+            const diffMs = Math.max(0, targetTime - now); 
+            const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+            
+            const countdownStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            document.getElementById('countdown-eng').innerText = countdownStr;
+            document.getElementById('countdown-urdu').innerText = toUrduDigits(countdownStr);
 
-</section>
+            if (hours === 0 && minutes === 0 && seconds === 0 && diffMs < 1000) {
+                const eventKey = `${eventType}-${targetTime.getTime()}`;
+                if (azanPlayedFor !== eventKey) {
+                    const audioElement = document.getElementById(`${eventType}-audio`);
+                    if (audioElement) {
+                        audioElement.play().catch(e => console.log("Audio requires a user click first.", e));
+                    }
+                    azanPlayedFor = eventKey; 
+                }
+            }
+        }
 
+        // --- INITIALIZE ---
+        buildTimetable();
+        updateClocksAndEvents(); 
+        setInterval(updateClocksAndEvents, 1000);
 
+        // --- TASBEEH LOGIC ---
+        let count = 0;
+        const countDisplay = document.getElementById('tasbeeh-count');
+        const tasbeehBtn = document.getElementById('tasbeeh-btn');
+        const resetBtn = document.getElementById('reset-btn');
 
-<section class="tasbeeh-container metallic-text">
-
-<h3>Quick Tasbeeh</h3>
-
-<div id="tasbeeh-count" class="counter-display">0</div>
-
-<div class="btn-group">
-
-<button id="tasbeeh-btn" class="metallic-btn">Tap</button>
-
-<button id="reset-btn" class="reset-btn">Reset</button>
-
-</div>
-
-</section>
-
-
-
-<section style="margin-top:30px">
-
-<button id="test-azan-btn" class="reset-btn"
-style="border-color:#00cc00;color:#00cc00">
-
-Test Audio (5s)
-
-</button>
-
-</section>
-
-
-</main>
-
-
-
-<audio id="suhoor-audio" src="suhoor-azan.mp3"></audio>
-<audio id="iftar-audio" src="iftar-azan.mp3"></audio>
-
+        if(tasbeehBtn && countDisplay) {
+            tasbeehBtn.addEventListener('click', () => { count++; countDisplay.innerText = count; });
+        }
+        if(resetBtn && countDisplay) {
+            resetBtn.addEventListener('click', () => { count = 0; countDisplay.innerText = count; });
+        }
+    </script>
 </body>
 </html>
