@@ -13,7 +13,7 @@ const duas = {
     }
 };
 
-// Hardcoded schedule so it works locally without a server
+// Hardcoded schedule
 const schedule = [
   { "date": "2026-02-19", "suhoor": "05:22:00", "iftar": "18:17:00" },
   { "date": "2026-02-20", "suhoor": "05:22:00", "iftar": "18:17:00" },
@@ -48,12 +48,16 @@ const schedule = [
 ];
 
 let azanPlayedFor = null; 
-let testModeTargetTime = null; // Used for overriding time during testing
-let testEventType = 'iftar';   // Default test event
+let testModeTargetTime = null; 
+let testEventType = 'iftar';   
 
-// Initialize the app immediately
-setHijriDate();
-setInterval(updateClocksAndEvents, 1000);
+// Helper: Get strictly local date string (YYYY-MM-DD) for India time
+function getLocalDateString(dateObj) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 function toUrduDigits(numStr) {
     const urduDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -67,6 +71,128 @@ function setHijriDate() {
     
     const gregStr = new Intl.DateTimeFormat('en-US', gregorianOptions).format(now);
     const hijriStr = new Intl.DateTimeFormat('en-US-u-ca-islamic', hijriOptions).format(now);
+    
+    document.getElementById('hijri-date').innerText = `${gregStr} | ${hijriStr}`;
+}
+
+function updateClocksAndEvents() {
+    const now = new Date();
+    
+    // Update Digital Clocks
+    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+    document.getElementById('eng-clock').innerText = timeString;
+    document.getElementById('urdu-clock').innerText = toUrduDigits(timeString);
+
+    let targetTime;
+    let eventType;
+
+    // ----- TEST OVERRIDE LOGIC -----
+    if (testModeTargetTime) {
+        targetTime = testModeTargetTime;
+        eventType = testEventType;
+        if (now > targetTime) {
+            testModeTargetTime = null; // Turn off test mode when finished
+        }
+    } else {
+        // ----- NORMAL TIMETABLE LOGIC -----
+        const todayStr = getLocalDateString(now);
+        const todayData = schedule.find(d => d.date === todayStr);
+
+        if (!todayData) {
+            document.getElementById('next-event').innerText = "Schedule not available for today.";
+            return;
+        }
+
+        const suhoorTime = new Date(`${todayStr}T${todayData.suhoor}`);
+        const iftarTime = new Date(`${todayStr}T${todayData.iftar}`);
+
+        if (now < suhoorTime) {
+            targetTime = suhoorTime;
+            eventType = 'suhoor';
+        } else if (now < iftarTime) {
+            targetTime = iftarTime;
+            eventType = 'iftar';
+        } else {
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = getLocalDateString(tomorrow);
+            const tomorrowData = schedule.find(d => d.date === tomorrowStr);
+            
+            if (tomorrowData) {
+                targetTime = new Date(`${tomorrowStr}T${tomorrowData.suhoor}`);
+                eventType = 'suhoor';
+            } else {
+                document.getElementById('next-event').innerText = "End of schedule.";
+                return;
+            }
+        }
+    }
+
+    // Update UI
+    document.getElementById('next-event').innerText = testModeTargetTime ? `TEST: ${duas[eventType].title}` : duas[eventType].title;
+    document.getElementById('target-time').innerText = `Time: ${targetTime.toLocaleTimeString('en-US', {hour12: true})}`;
+    document.getElementById('dua-title').innerText = `Dua for ${eventType.charAt(0).toUpperCase() + eventType.slice(1)}`;
+    document.getElementById('dua-arabic').innerText = duas[eventType].arabic;
+    document.getElementById('dua-translit').innerText = duas[eventType].translit;
+    document.getElementById('dua-translat').innerText = duas[eventType].translat;
+
+    // Calculate Countdown safely
+    const diffMs = Math.max(0, targetTime - now); 
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+    
+    document.getElementById('countdown').innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    // Play Audio (Triggers exactly at 00:00:00)
+    if (hours === 0 && minutes === 0 && seconds === 0 && diffMs < 1000) {
+        const eventKey = `${eventType}-${targetTime.getTime()}`;
+        
+        if (azanPlayedFor !== eventKey) {
+            const audioElement = document.getElementById(`${eventType}-audio`);
+            if (audioElement) {
+                audioElement.play().catch(e => console.error("Audio blocked by browser. Click anywhere on the page first.", e));
+            }
+            azanPlayedFor = eventKey; 
+        }
+    }
+}
+
+// Run immediately on load so we don't wait 1 second for the interval to start
+setHijriDate();
+updateClocksAndEvents(); 
+setInterval(updateClocksAndEvents, 1000);
+
+// --- Event Listeners ---
+
+document.getElementById('test-azan-btn').addEventListener('click', () => {
+    testModeTargetTime = new Date(new Date().getTime() + 5000); 
+    testEventType = testEventType === 'iftar' ? 'suhoor' : 'iftar'; 
+});
+
+let count = 0;
+const countDisplay = document.getElementById('tasbeeh-count');
+document.getElementById('tasbeeh-btn').addEventListener('click', () => {
+    count++;
+    countDisplay.innerText = count;
+});
+document.getElementById('reset-btn').addEventListener('click', () => {
+    count = 0;
+    countDisplay.innerText = count;
+});
+
+const slider = document.getElementById('clock-slider');
+const dots = document.querySelectorAll('.dot');
+slider.addEventListener('scroll', () => {
+    const scrollLeft = slider.scrollLeft;
+    const width = slider.offsetWidth;
+    const index = Math.round(scrollLeft / width);
+    
+    dots.forEach(dot => dot.classList.remove('active'));
+    if (dots[index]) {
+        dots[index].classList.add('active');
+    }
+});
     
     document.getElementById('hijri-date').innerText = `${gregStr} | ${hijriStr}`;
 }
