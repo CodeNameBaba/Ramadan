@@ -22,14 +22,15 @@
         </div>
     </nav>
 
-    
-    <header>
+    <header class="main-header">
         <div class="location-date metallic-text">
             <p>📍 Chhapara, Seoni</p>
             <p id="hijri-date">Loading date...</p>
         </div>
         
-        <img src="kalma-image.jpg" alt="Kalmah" class="kalmah-img">
+        <div class="kalma-container">
+            <img src="kalma-image.jpg" alt="Kalmah" class="kalmah-img">
+        </div>
     </header>
 
     <main>
@@ -64,11 +65,19 @@
         <section class="tasbeeh-container metallic-text">
             <h3>Quick Tasbeeh</h3>
             <div id="tasbeeh-count" class="counter-display">0</div>
-            <button id="tasbeeh-btn" class="metallic-btn">Tap (SubhanAllah)</button>
-            <button id="reset-btn" class="reset-btn">Reset</button>
+            <div class="btn-group">
+                <button id="tasbeeh-btn" class="metallic-btn">Tap</button>
+                <button id="reset-btn" class="reset-btn">Reset</button>
+            </div>
         </section>
     </main>
 
+    <audio id="suhoor-audio" src="suhoor-azan.mp3"></audio>
+    <audio id="iftar-audio" src="iftar-azan.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
     <audio id="azan-audio" src="azan.mp3"></audio>
     <script src="script.js"></script>
 </body>
