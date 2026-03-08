@@ -1,84 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chhapara Ramadan Tracker</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chhapara Ramadan Tracker</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
+
 </head>
+
 <body>
-    <nav role="navigation">
-        <div id="menuToggle">
-            <input type="checkbox" />
-            <span></span>
-            <span></span>
-            <span></span>
-            <ul id="menu">
-                <a href="#"><li>Home</li></a>
-                <a href="#"><li>Full Timetable</li></a>
-                <a href="#"><li>Qibla Compass</li></a>
-                <a href="#"><li>Settings</li></a>
-            </ul>
-        </div>
-    </nav>
 
-    <header class="main-header">
-        <div class="location-date metallic-text">
-            <p>📍 Chhapara, Seoni</p>
-            <p id="hijri-date">Loading date...</p>
-        </div>
-        
-        <div class="kalma-container">
-            <img src="kalma-image.jpg" alt="Kalmah" class="kalmah-img">
-        </div>
-    </header>
+<nav role="navigation">
+<div id="menuToggle">
 
-    <main>
-        <section class="swipe-wrapper">
-            <div class="swipe-container" id="clock-slider">
-                <div class="swipe-item">
-                    <div id="eng-clock" class="neon-clock">00:00:00</div>
-                </div>
-                <div class="swipe-item">
-                    <div id="urdu-clock" class="neon-clock urdu-text">٠٠:٠٠:٠٠</div>
-                </div>
-            </div>
-            <div class="swipe-dots">
-                <span class="dot active"></span>
-                <span class="dot"></span>
-            </div>
-        </section>
+<input type="checkbox"/>
 
-        <section class="event-container metallic-text">
-            <h2 id="next-event">Loading...</h2>
-            <div id="countdown" class="neon-clock small-neon">00:00:00</div>
-            <p id="target-time">Time: --:--</p>
-        </section>
+<span></span>
+<span></span>
+<span></span>
 
-        <section class="dua-container metallic-text">
-            <h3 id="dua-title">Dua</h3>
-            <p id="dua-arabic" class="arabic-text"></p>
-            <p id="dua-translit" class="translit-text"></p>
-            <p id="dua-translat" class="translat-text"></p>
-        </section>
+<ul id="menu">
 
-        <section class="tasbeeh-container metallic-text">
-            <h3>Quick Tasbeeh</h3>
-            <div id="tasbeeh-count" class="counter-display">0</div>
-            <div class="btn-group">
-                <button id="tasbeeh-btn" class="metallic-btn">Tap</button>
-                <button id="reset-btn" class="reset-btn">Reset</button>
-            </div>
-        </section>
+<a href="#"><li>Home</li></a>
+<a href="#"><li>Full Timetable</li></a>
+<a href="#"><li>Qibla Compass</li></a>
+<a href="#"><li>Settings</li></a>
 
-        <section class="test-container" style="margin-top: 30px;">
-            <button id="test-azan-btn" class="reset-btn" style="border-color: var(--neon-dark-green); color: var(--neon-dark-green);">Test Audio (5s Countdown)</button>
-        </section>
-    </main>
+</ul>
 
-    <audio id="suhoor-audio" src="suhoor-azan.mp3"></audio>
-    <audio id="iftar-audio" src="iftar-azan.mp3"></audio>
+</div>
+</nav>
 
-    <script src="script.js"></script>
+
+
+<header class="main-header">
+
+<div class="location-date metallic-text">
+<p>📍 Chhapara, Seoni</p>
+<p id="hijri-date">Loading date...</p>
+</div>
+
+<div class="kalma-container">
+<img src="kalma-image.jpg" class="kalmah-img">
+</div>
+
+</header>
+
+
+
+<main>
+
+<section class="swipe-wrapper">
+
+<div class="swipe-container" id="clock-slider">
+
+<div class="swipe-item">
+<div id="eng-clock" class="neon-clock">00:00:00</div>
+</div>
+
+<div class="swipe-item">
+<div id="urdu-clock" class="neon-clock urdu-text">٠٠:٠٠:٠٠</div>
+</div>
+
+</div>
+
+<div class="swipe-dots">
+<span class="dot active"></span>
+<span class="dot"></span>
+</div>
+
+</section>
+
+
+
+<section class="event-container metallic-text">
+
+<h2 id="next-event">Loading...</h2>
+
+<div id="countdown" class="neon-clock small-neon">00:00:00</div>
+
+<p id="target-time">Time: --:--</p>
+
+</section>
+
+
+
+<section class="dua-container metallic-text">
+
+<h3 id="dua-title">Dua</h3>
+
+<p id="dua-arabic" class="arabic-text"></p>
+
+<p id="dua-translit" class="translit-text"></p>
+
+<p id="dua-translat" class="translat-text"></p>
+
+</section>
+
+
+
+<section class="tasbeeh-container metallic-text">
+
+<h3>Quick Tasbeeh</h3>
+
+<div id="tasbeeh-count" class="counter-display">0</div>
+
+<div class="btn-group">
+
+<button id="tasbeeh-btn" class="metallic-btn">Tap</button>
+
+<button id="reset-btn" class="reset-btn">Reset</button>
+
+</div>
+
+</section>
+
+
+
+<section style="margin-top:30px">
+
+<button id="test-azan-btn" class="reset-btn"
+style="border-color:#00cc00;color:#00cc00">
+
+Test Audio (5s)
+
+</button>
+
+</section>
+
+
+</main>
+
+
+
+<audio id="suhoor-audio" src="suhoor-azan.mp3"></audio>
+<audio id="iftar-audio" src="iftar-azan.mp3"></audio>
+
 </body>
 </html>
