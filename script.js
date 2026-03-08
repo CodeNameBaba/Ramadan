@@ -13,7 +13,6 @@ const duas = {
     }
 };
 
-// Hardcoded schedule
 const schedule = [
   { "date": "2026-02-19", "suhoor": "05:22:00", "iftar": "18:17:00" },
   { "date": "2026-02-20", "suhoor": "05:22:00", "iftar": "18:17:00" },
@@ -51,7 +50,16 @@ let azanPlayedFor = null;
 let testModeTargetTime = null; 
 let testEventType = 'iftar';   
 
-// Helper: Get strictly local date string (YYYY-MM-DD) for India time
+// --- BULLETPROOF HELPER FUNCTIONS ---
+
+// 1. Safe Date Parser (Prevents NaN crashes on Safari/Old browsers)
+function parseSafeDate(dateStr, timeStr) {
+    const [year, month, day] = dateStr.split('-');
+    const [hours, minutes, seconds] = timeStr.split(':');
+    return new Date(year, month - 1, day, hours, minutes, seconds);
+}
+
+// 2. Safe Local Date String
 function getLocalDateString(dateObj) {
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -59,29 +67,45 @@ function getLocalDateString(dateObj) {
     return `${year}-${month}-${day}`;
 }
 
+// 3. Urdu Digits
 function toUrduDigits(numStr) {
     const urduDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
     return numStr.replace(/\d/g, d => urduDigits[d]);
 }
 
+// 4. Safe Hijri Date (Prevents fatal crashes if API is unsupported)
 function setHijriDate() {
-    const now = new Date();
-    const gregorianOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const hijriOptions = { day: 'numeric', month: 'long', year: 'numeric', calendar: 'islamic' };
-    
-    const gregStr = new Intl.DateTimeFormat('en-US', gregorianOptions).format(now);
-    const hijriStr = new Intl.DateTimeFormat('en-US-u-ca-islamic', hijriOptions).format(now);
-    
-    document.getElementById('hijri-date').innerText = `${gregStr} | ${hijriStr}`;
+    try {
+        const now = new Date();
+        const gregorianOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const hijriOptions = { day: 'numeric', month: 'long', year: 'numeric', calendar: 'islamic' };
+        
+        const gregStr = new Intl.DateTimeFormat('en-US', gregorianOptions).format(now);
+        const hijriStr = new Intl.DateTimeFormat('en-US-u-ca-islamic', hijriOptions).format(now);
+        
+        document.getElementById('hijri-date').innerText = `${gregStr} | ${hijriStr}`;
+    } catch (error) {
+        console.warn("Hijri format not supported. Using fallback.");
+        const fallbackDate = new Date().toDateString();
+        document.getElementById('hijri-date').innerText = `${fallbackDate} | Ramadan 1447`;
+    }
 }
+
+// --- MAIN LOOP ---
 
 function updateClocksAndEvents() {
     const now = new Date();
     
-    // Update Digital Clocks
-    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-    document.getElementById('eng-clock').innerText = timeString;
-    document.getElementById('urdu-clock').innerText = toUrduDigits(timeString);
+    // 1. Force the clocks to update FIRST, no matter what happens below
+    try {
+        const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+        const engClock = document.getElementById('eng-clock');
+        const urduClock = document.getElementById('urdu-clock');
+        if (engClock) engClock.innerText = timeString;
+        if (urduClock) urduClock.innerText = toUrduDigits(timeString);
+    } catch (e) {
+        console.error("Error updating digital clocks:", e);
+    }
 
     let targetTime;
     let eventType;
@@ -91,7 +115,7 @@ function updateClocksAndEvents() {
         targetTime = testModeTargetTime;
         eventType = testEventType;
         if (now > targetTime) {
-            testModeTargetTime = null; // Turn off test mode when finished
+            testModeTargetTime = null; 
         }
     } else {
         // ----- NORMAL TIMETABLE LOGIC -----
@@ -100,11 +124,11 @@ function updateClocksAndEvents() {
 
         if (!todayData) {
             document.getElementById('next-event').innerText = "Schedule not available for today.";
-            return;
+            return; // Stops here if date isn't in JSON
         }
 
-        const suhoorTime = new Date(`${todayStr}T${todayData.suhoor}`);
-        const iftarTime = new Date(`${todayStr}T${todayData.iftar}`);
+        const suhoorTime = parseSafeDate(todayStr, todayData.suhoor);
+        const iftarTime = parseSafeDate(todayStr, todayData.iftar);
 
         if (now < suhoorTime) {
             targetTime = suhoorTime;
@@ -119,7 +143,7 @@ function updateClocksAndEvents() {
             const tomorrowData = schedule.find(d => d.date === tomorrowStr);
             
             if (tomorrowData) {
-                targetTime = new Date(`${tomorrowStr}T${tomorrowData.suhoor}`);
+                targetTime = parseSafeDate(tomorrowStr, tomorrowData.suhoor);
                 eventType = 'suhoor';
             } else {
                 document.getElementById('next-event').innerText = "End of schedule.";
@@ -128,68 +152,87 @@ function updateClocksAndEvents() {
         }
     }
 
-    // Update UI
-    document.getElementById('next-event').innerText = testModeTargetTime ? `TEST: ${duas[eventType].title}` : duas[eventType].title;
-    document.getElementById('target-time').innerText = `Time: ${targetTime.toLocaleTimeString('en-US', {hour12: true})}`;
-    document.getElementById('dua-title').innerText = `Dua for ${eventType.charAt(0).toUpperCase() + eventType.slice(1)}`;
-    document.getElementById('dua-arabic').innerText = duas[eventType].arabic;
-    document.getElementById('dua-translit').innerText = duas[eventType].translit;
-    document.getElementById('dua-translat').innerText = duas[eventType].translat;
+    // 2. Update UI Safely
+    try {
+        document.getElementById('next-event').innerText = testModeTargetTime ? `TEST: ${duas[eventType].title}` : duas[eventType].title;
+        document.getElementById('target-time').innerText = `Time: ${targetTime.toLocaleTimeString('en-US', {hour12: true})}`;
+        document.getElementById('dua-title').innerText = `Dua for ${eventType.charAt(0).toUpperCase() + eventType.slice(1)}`;
+        document.getElementById('dua-arabic').innerText = duas[eventType].arabic;
+        document.getElementById('dua-translit').innerText = duas[eventType].translit;
+        document.getElementById('dua-translat').innerText = duas[eventType].translat;
 
-    // Calculate Countdown safely
-    const diffMs = Math.max(0, targetTime - now); 
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-    
-    document.getElementById('countdown').innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-    // Play Audio (Triggers exactly at 00:00:00)
-    if (hours === 0 && minutes === 0 && seconds === 0 && diffMs < 1000) {
-        const eventKey = `${eventType}-${targetTime.getTime()}`;
+        // Calculate Countdown
+        const diffMs = Math.max(0, targetTime - now); 
+        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
         
-        if (azanPlayedFor !== eventKey) {
-            const audioElement = document.getElementById(`${eventType}-audio`);
-            if (audioElement) {
-                audioElement.play().catch(e => console.error("Audio blocked by browser. Click anywhere on the page first.", e));
+        document.getElementById('countdown').innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        // Play Audio (Triggers exactly at 00:00:00)
+        if (hours === 0 && minutes === 0 && seconds === 0 && diffMs < 1000) {
+            const eventKey = `${eventType}-${targetTime.getTime()}`;
+            
+            if (azanPlayedFor !== eventKey) {
+                const audioElement = document.getElementById(`${eventType}-audio`);
+                if (audioElement) {
+                    audioElement.play().catch(e => console.log("Audio requires a user click first.", e));
+                }
+                azanPlayedFor = eventKey; 
             }
-            azanPlayedFor = eventKey; 
         }
+    } catch (e) {
+        console.error("Error updating event UI:", e);
     }
 }
 
-// Run immediately on load so we don't wait 1 second for the interval to start
-setHijriDate();
-updateClocksAndEvents(); 
-setInterval(updateClocksAndEvents, 1000);
+// --- INITIALIZE (Safely) ---
+try {
+    setHijriDate();
+    updateClocksAndEvents(); 
+    setInterval(updateClocksAndEvents, 1000);
+} catch (e) {
+    console.error("Critical failure during initialization:", e);
+}
 
-// --- Event Listeners ---
-
-document.getElementById('test-azan-btn').addEventListener('click', () => {
-    testModeTargetTime = new Date(new Date().getTime() + 5000); 
-    testEventType = testEventType === 'iftar' ? 'suhoor' : 'iftar'; 
-});
+// --- EVENT LISTENERS ---
+const testBtn = document.getElementById('test-azan-btn');
+if(testBtn) {
+    testBtn.addEventListener('click', () => {
+        testModeTargetTime = new Date(new Date().getTime() + 5000); 
+        testEventType = testEventType === 'iftar' ? 'suhoor' : 'iftar'; 
+    });
+}
 
 let count = 0;
 const countDisplay = document.getElementById('tasbeeh-count');
-document.getElementById('tasbeeh-btn').addEventListener('click', () => {
-    count++;
-    countDisplay.innerText = count;
-});
-document.getElementById('reset-btn').addEventListener('click', () => {
-    count = 0;
-    countDisplay.innerText = count;
-});
+const tasbeehBtn = document.getElementById('tasbeeh-btn');
+const resetBtn = document.getElementById('reset-btn');
+
+if(tasbeehBtn && countDisplay) {
+    tasbeehBtn.addEventListener('click', () => {
+        count++;
+        countDisplay.innerText = count;
+    });
+}
+if(resetBtn && countDisplay) {
+    resetBtn.addEventListener('click', () => {
+        count = 0;
+        countDisplay.innerText = count;
+    });
+}
 
 const slider = document.getElementById('clock-slider');
 const dots = document.querySelectorAll('.dot');
-slider.addEventListener('scroll', () => {
-    const scrollLeft = slider.scrollLeft;
-    const width = slider.offsetWidth;
-    const index = Math.round(scrollLeft / width);
-    
-    dots.forEach(dot => dot.classList.remove('active'));
-    if (dots[index]) {
-        dots[index].classList.add('active');
-    }
-});
+if(slider && dots.length > 0) {
+    slider.addEventListener('scroll', () => {
+        const scrollLeft = slider.scrollLeft;
+        const width = slider.offsetWidth;
+        const index = Math.round(scrollLeft / width);
+        
+        dots.forEach(dot => dot.classList.remove('active'));
+        if (dots[index]) {
+            dots[index].classList.add('active');
+        }
+    });
+}
