@@ -21,20 +21,31 @@ body {
     text-shadow: 1px 1px 1px #7a7c80, -1px -1px 1px #ffffff33; 
 }
 
-/* Header & Image */
-header {
-    margin-top: 50px;
-    padding: 10px;
+/* Header & Kalmah Image Container */
+.main-header {
+    margin-top: 60px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .location-date {
     font-size: 0.9rem;
     margin-bottom: 20px;
     font-weight: 300;
 }
+.kalma-container {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px auto;
+    display: flex;
+    justify-content: center;
+}
 .kalmah-img {
-    width: 80%;
-    max-width: 400px;
+    width: 100%;
     height: auto;
+    object-fit: contain;
+    border-radius: 10px;
     filter: drop-shadow(0px 4px 6px rgba(255,255,255,0.1));
 }
 
@@ -93,6 +104,9 @@ header {
 }
 
 /* Containers */
+section {
+    margin-bottom: 25px;
+}
 .event-container, .dua-container, .tasbeeh-container {
     background: #151515;
     margin: 20px auto;
@@ -125,7 +139,15 @@ header {
     font-weight: 600;
     margin: 10px 0;
 }
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
 .metallic-btn {
+    flex: 1;
+    max-width: 150px;
     background: linear-gradient(145deg, #d3d4d8, #9ea0a5);
     color: #111;
     border: none;
@@ -134,12 +156,13 @@ header {
     font-weight: 600;
     cursor: pointer;
     font-family: 'Poppins', sans-serif;
-    margin-right: 10px;
 }
 .metallic-btn:active {
     background: linear-gradient(145deg, #9ea0a5, #d3d4d8);
 }
 .reset-btn {
+    flex: 0.5;
+    max-width: 100px;
     background: transparent;
     border: 1px solid #7a7c80;
     color: #e6e8ea;
@@ -148,7 +171,7 @@ header {
     cursor: pointer;
 }
 
-/* Hamburger Menu (Kept from previous version, background adjusted) */
+/* Hamburger Menu */
 #menuToggle { display: block; position: absolute; top: 25px; left: 25px; z-index: 1; user-select: none; }
 #menuToggle input { display: block; width: 40px; height: 32px; position: absolute; top: -7px; left: -5px; cursor: pointer; opacity: 0; z-index: 2; }
 #menuToggle span { display: block; width: 33px; height: 4px; margin-bottom: 5px; position: relative; background: #e6e8ea; border-radius: 3px; z-index: 1; transform-origin: 4px 0px; transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0), background 0.5s cubic-bezier(0.77,0.2,0.05,1.0), opacity 0.55s ease; }
