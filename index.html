@@ -99,20 +99,20 @@
         }
 
         .header-kalma {
-    display: block;
-    height: 60px;              
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    height: 65px;
     width: auto;
-    margin: 0 auto;            
     object-fit: contain;
-    
-    
+
     filter: drop-shadow(0 3px 12px rgba(255,255,255,0.25));
-    
-   transition: transform 0.3s ease, filter 0.3s ease;
+    transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .header-kalma:hover {
-    transform: scale(1.05); 
+    transform: translateX(-50%) scale(1.05);
     filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
 }
 
