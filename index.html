@@ -427,274 +427,259 @@
     <audio id="azan-audio" src="suhoor-azan.mp3"></audio>
 
     <script>
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(view => {
-                view.classList.remove('active');
-            });
-            document.getElementById(viewId).classList.add('active');
-            document.getElementById('menu-checkbox').checked = false;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+       function switchView(viewId) {
+    document.querySelectorAll('.view-section').forEach(view => {
+        view.classList.remove('active');
+    });
+    document.getElementById(viewId).classList.add('active');
+    document.getElementById('menu-checkbox').checked = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-        const azanAudio = document.getElementById('azan-audio');
-        let azanMuted = false;
+const azanAudio = document.getElementById('azan-audio');
+let azanMuted = false;
 
-        function playAzanManual() {
-            azanAudio.muted = false;
-            azanMuted = false;
-            document.getElementById('mute-btn').innerText = "🔇 Mute Azan";
-            document.getElementById('mute-btn').style.color = "#888";
-            document.getElementById('mute-btn').style.borderColor = "#888";
-            document.getElementById('mute-btn').style.background = "transparent";
-            azanAudio.currentTime = 0;
-            azanAudio.play().catch(()=>{});
-        }
+function playAzanManual() {
+    azanAudio.muted = false;
+    azanMuted = false;
 
-        function toggleMuteAzan() {
-            azanMuted = !azanMuted;
-            azanAudio.muted = azanMuted;
-            const muteBtn = document.getElementById('mute-btn');
-            
-            if (azanMuted) {
-                muteBtn.innerText = "🔊 Unmute Azan";
-                muteBtn.style.color = "#000";
-                muteBtn.style.background = "var(--neon-dark-green)";
-                muteBtn.style.borderColor = "var(--neon-dark-green)";
-                azanAudio.pause();
-                azanAudio.currentTime = 0;
-            } else {
-                muteBtn.innerText = "🔇 Mute Azan";
-                muteBtn.style.color = "#888";
-                muteBtn.style.background = "transparent";
-                muteBtn.style.borderColor = "#888";
-            }
-        }
+    const btn = document.getElementById('mute-btn');
+    btn.innerText = "🔇 Mute Azan";
+    btn.style.color = "#888";
+    btn.style.borderColor = "#888";
+    btn.style.background = "transparent";
 
-        const duas = {
-            suhoor: {
-                title: "Next: Suhoor <br><span style='font-family: Amiri, serif; font-size: 2.2rem; font-weight: normal; color: #ccc; text-shadow: none;'>اگلی سحری</span>",
-                arabic: "نَوَيْتُ أَنْ أَصُومَ غَدًا لِلَّهِ تَعَالَى مِنْ فَرْضِ رَمَضَانَ هَذَا",
-                translit: "Nawaitu An Asuma Gadal'Lillahi Ta'aala Min Farzy RAMAZAN haaza",
-                translat: '"I intend to keep the fast for tomorrow for Allah from the obligation of this Ramadan."',
-                urdu: "میں نے کل کے رمضان کے فرض روزے کی نیت کی اللہ تعالیٰ کے لیے۔"
-            },
-            iftar: {
-                title: "Next: Iftar <br><span style='font-family: Amiri, serif; font-size: 2.2rem; font-weight: normal; color: #ccc; text-shadow: none;'>اگلا افطار</span>",
-                arabic: "اللَّهُمَّ إِنِّي لَكَ صُمْتُ وَبِكَ امَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْطَرْتُ",
-                translit: "Allahumma inni laka sumtu, wa bika aamantu, wa 'alayka tawakkaltu, wa 'ala rizq-ika aftartu",
-                translat: '"O Allah! I fasted for You and I believe in You and I put my trust in You and I break my fast with Your sustenance."',
-                urdu: "اے اللہ! میں نے تیرے لیے روزہ رکھا اور تجھ پر ایمان لایا اور تجھ پر بھروسہ کیا اور تیرے رزق پر افطار کیا۔"
-            }
-        };
+    azanAudio.currentTime = 0;
+    azanAudio.play().catch(()=>{});
+}
 
-        const schedule = [
-          { "date": "2026-02-19", "suhoor": "05:22:00", "iftar": "18:17:00" },
-          { "date": "2026-02-20", "suhoor": "05:22:00", "iftar": "18:17:00" },
-          { "date": "2026-02-21", "suhoor": "05:21:00", "iftar": "18:18:00" },
-          { "date": "2026-02-22", "suhoor": "05:21:00", "iftar": "18:18:00" },
-          { "date": "2026-02-23", "suhoor": "05:20:00", "iftar": "18:19:00" },
-          { "date": "2026-02-24", "suhoor": "05:20:00", "iftar": "18:19:00" },
-          { "date": "2026-02-25", "suhoor": "05:19:00", "iftar": "18:19:00" },
-          { "date": "2026-02-26", "suhoor": "05:19:00", "iftar": "18:19:00" },
-          { "date": "2026-02-27", "suhoor": "05:18:00", "iftar": "18:20:00" },
-          { "date": "2026-02-28", "suhoor": "05:17:00", "iftar": "18:20:00" },
-          { "date": "2026-03-01", "suhoor": "05:16:00", "iftar": "18:21:00" },
-          { "date": "2026-03-02", "suhoor": "05:15:00", "iftar": "18:21:00" },
-          { "date": "2026-03-03", "suhoor": "05:14:00", "iftar": "18:22:00" },
-          { "date": "2026-03-04", "suhoor": "05:13:00", "iftar": "18:22:00" },
-          { "date": "2026-03-05", "suhoor": "05:12:00", "iftar": "18:23:00" },
-          { "date": "2026-03-06", "suhoor": "05:12:00", "iftar": "18:23:00" },
-          { "date": "2026-03-07", "suhoor": "05:11:00", "iftar": "18:24:00" },
-          { "date": "2026-03-08", "suhoor": "05:11:00", "iftar": "18:24:00" },
-          { "date": "2026-03-09", "suhoor": "05:10:00", "iftar": "18:25:00" },
-          { "date": "2026-03-10", "suhoor": "05:09:00", "iftar": "18:25:00" },
-          { "date": "2026-03-11", "suhoor": "05:08:00", "iftar": "18:25:00" },
-          { "date": "2026-03-12", "suhoor": "05:07:00", "iftar": "18:25:00" },
-          { "date": "2026-03-13", "suhoor": "05:06:00", "iftar": "18:26:00" },
-          { "date": "2026-03-14", "suhoor": "05:05:00", "iftar": "18:26:00" },
-          { "date": "2026-03-15", "suhoor": "05:04:00", "iftar": "18:27:00" },
-          { "date": "2026-03-16", "suhoor": "05:03:00", "iftar": "18:27:00" },
-          { "date": "2026-03-17", "suhoor": "05:02:00", "iftar": "18:27:00" },
-          { "date": "2026-03-18", "suhoor": "05:01:00", "iftar": "18:27:00" },
-          { "date": "2026-03-19", "suhoor": "05:00:00", "iftar": "18:28:00" },
-          { "date": "2026-03-20", "suhoor": "05:00:00", "iftar": "18:28:00" }
-        ];
+function toggleMuteAzan() {
+    azanMuted = !azanMuted;
+    azanAudio.muted = azanMuted;
 
-        let azanPlayedFor = null; 
+    const btn = document.getElementById('mute-btn');
 
-        function parseSafeDate(dateStr, timeStr) {
-            const [year, month, day] = dateStr.split('-');
-            const [hours, minutes, seconds] = timeStr.split(':');
-            return new Date(year, month - 1, day, hours, minutes, seconds);
-        }
+    if (azanMuted) {
+        btn.innerText = "🔊 Unmute Azan";
+        btn.style.color = "#000";
+        btn.style.background = "var(--neon-dark-green)";
+        btn.style.borderColor = "var(--neon-dark-green)";
+        azanAudio.pause();
+        azanAudio.currentTime = 0;
+    } else {
+        btn.innerText = "🔇 Mute Azan";
+        btn.style.color = "#888";
+        btn.style.background = "transparent";
+        btn.style.borderColor = "#888";
+    }
+}
 
-        function getLocalDateString(dateObj) {
-            const year = dateObj.getFullYear();
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const day = String(dateObj.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+/* ---------------- IFTAR POPUP ---------------- */
 
-        function toUrduDigits(numStr) {
-            const urduDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-            return numStr.replace(/\d/g, d => urduDigits[d]);
-        }
-
-        function formatAmPm(timeStr) {
-            const [h, m] = timeStr.split(':');
-            let hour = parseInt(h);
-            const ampm = hour >= 12 ? 'PM' : 'AM';
-            hour = hour % 12 || 12;
-            return `${String(hour).padStart(2, '0')}:${m} ${ampm}`;
-        }
-
-        function buildTimetable() {
-            const tbody = document.getElementById('timetable-body');
-            const todayStr = getLocalDateString(new Date());
-            let html = "";
-
-            schedule.forEach((day, index) => {
-                const dateObj = new Date(day.date);
-                const displayDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const isToday = day.date === todayStr ? 'class="today-row"' : '';
-                
-                html += `<tr ${isToday}>
-                    <td>${index + 1}</td>
-                    <td>${displayDate}</td>
-                    <td>${formatAmPm(day.suhoor)}</td>
-                    <td>${formatAmPm(day.iftar)}</td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        function setCustomDates(now) {
-            const gregOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('gregorian-date').innerText = now.toLocaleDateString('en-US', gregOptions);
-
-            const todayStr = getLocalDateString(now);
-            const todayIndex = schedule.findIndex(d => d.date === todayStr);
-
-            const hEng = document.getElementById('hijri-eng');
-            const hUrdu = document.getElementById('hijri-urdu');
-            const rTracker = document.getElementById('ramadan-tracker');
-
-            if (todayIndex !== -1) {
-                let ramadanDay = todayIndex + 1;
-                let taraweehDay = ramadanDay + 1; 
-                hEng.innerText = `${ramadanDay} Ramadan 1447 Hijri`;
-                hUrdu.innerText = `${toUrduDigits(ramadanDay.toString())} رمضان ١٤٤٧ ہجری`;
-                rTracker.innerText = `🌙 Ramadan: ${ramadanDay} | Taraweeh: ${taraweehDay}`;
-            } else {
-                hEng.innerText = `Awaiting Ramadan 1447`;
-                hUrdu.innerText = `رمضان ١٤٤٧ کا انتظار ہے`;
-                rTracker.innerText = `🌙 Ramadan Tracker`;
-            }
-        }
-
-        function updateClocksAndEvents() {
-            const now = new Date();
-            
-            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-            document.getElementById('eng-clock').innerText = timeString;
-            document.getElementById('urdu-clock').innerText = toUrduDigits(timeString);
-
-            setCustomDates(now);
-
-            let targetTime;
-            let eventType;
-
-            const todayStr = getLocalDateString(now);
-            const todayData = schedule.find(d => d.date === todayStr);
-
-            if (!todayData) {
-                document.getElementById('next-event').innerText = "Schedule not available for today.";
-                return; 
-            }
-
-            const suhoorTime = parseSafeDate(todayStr, todayData.suhoor);
-            const iftarTime = parseSafeDate(todayStr, todayData.iftar);
-
-            if (now < suhoorTime) {
-                targetTime = suhoorTime;
-                eventType = 'suhoor';
-            } else if (now < iftarTime) {
-                targetTime = iftarTime;
-                eventType = 'iftar';
-            } else {
-                const tomorrow = new Date(now);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowStr = getLocalDateString(tomorrow);
-                const tomorrowData = schedule.find(d => d.date === tomorrowStr);
-                
-                if (tomorrowData) {
-                    targetTime = parseSafeDate(tomorrowStr, tomorrowData.suhoor);
-                    eventType = 'suhoor';
-                } else {
-                    document.getElementById('next-event').innerText = "End of schedule.";
-                    return;
-                }
-            }
-
-           function showIftarPopup() {
+function showIftarPopup() {
     document.getElementById("iftar-popup").style.display = "flex";
+    setTimeout(closePopup,15000);
 }
 
 function closePopup() {
     document.getElementById("iftar-popup").style.display = "none";
-} document.getElementById('next-event').innerHTML = duas[eventType].title;
-            document.getElementById('target-time').innerText = `Time: ${targetTime.toLocaleTimeString('en-US', {hour12: true})}`;
-            document.getElementById('dua-title').innerText = `Dua for ${eventType.charAt(0).toUpperCase() + eventType.slice(1)}`;
-            document.getElementById('dua-arabic').innerText = duas[eventType].arabic;
-            document.getElementById('dua-translit').innerText = duas[eventType].translit;
-            document.getElementById('dua-translat').innerText = duas[eventType].translat;
-            document.getElementById('dua-urdu').innerText = duas[eventType].urdu;
+}
 
-            const diffMs = Math.max(0, targetTime - now); 
-            const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-            
-            const countdownStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            
-            document.getElementById('countdown-eng').innerText = countdownStr;
-            document.getElementById('countdown-urdu').innerText = toUrduDigits(countdownStr);
+/* ---------------- UTILITIES ---------------- */
 
-            if (hours === 0 && minutes === 0 && seconds === 0 && diffMs < 1000) {
+function parseSafeDate(dateStr,timeStr){
+    const [y,m,d] = dateStr.split("-");
+    const [h,min,s] = timeStr.split(":");
+    return new Date(y,m-1,d,h,min,s);
+}
 
-    const eventKey = `${eventType}-${targetTime.getTime()}`;
+function getLocalDateString(date){
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,"0");
+    const d = String(date.getDate()).padStart(2,"0");
+    return `${y}-${m}-${d}`;
+}
 
-    if (azanPlayedFor !== eventKey) {
+function toUrduDigits(str){
+    const u=['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    return str.replace(/\d/g,d=>u[d]);
+}
 
-        if (eventType === 'suhoor') {
-            if (!azanMuted) {
-                azanAudio.play().catch(()=>{});
-            }
+function formatAmPm(time){
+    const [h,m] = time.split(":");
+    let hour = parseInt(h);
+    const ampm = hour>=12 ? "PM":"AM";
+    hour = hour%12 || 12;
+    return `${String(hour).padStart(2,"0")}:${m} ${ampm}`;
+}
 
-        } else if (eventType === 'iftar') {
+/* ---------------- TIMETABLE ---------------- */
 
-            showIftarPopup();
+function buildTimetable(){
+    const tbody = document.getElementById("timetable-body");
+    const todayStr = getLocalDateString(new Date());
+    let html="";
 
-        }
+    schedule.forEach((day,index)=>{
 
-        azanPlayedFor = eventKey;
+        const dateObj = new Date(day.date);
+        const displayDate = dateObj.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+
+        const isToday = day.date===todayStr ? 'class="today-row"' : '';
+
+        html += `
+        <tr ${isToday}>
+        <td>${index+1}</td>
+        <td>${displayDate}</td>
+        <td>${formatAmPm(day.suhoor)}</td>
+        <td>${formatAmPm(day.iftar)}</td>
+        </tr>`;
+    });
+
+    tbody.innerHTML = html;
+}
+
+/* ---------------- DATE DISPLAY ---------------- */
+
+function setCustomDates(now){
+
+    const gregOptions = {weekday:"long",year:"numeric",month:"long",day:"numeric"};
+    document.getElementById("gregorian-date").innerText =
+        now.toLocaleDateString("en-US",gregOptions);
+
+    const todayStr = getLocalDateString(now);
+    const index = schedule.findIndex(d=>d.date===todayStr);
+
+    const hEng = document.getElementById("hijri-eng");
+    const hUrdu = document.getElementById("hijri-urdu");
+    const tracker = document.getElementById("ramadan-tracker");
+
+    if(index!==-1){
+
+        let ramadanDay = index+1;
+        let taraweeh = ramadanDay+1;
+
+        hEng.innerText = `${ramadanDay} Ramadan 1447 Hijri`;
+        hUrdu.innerText = `${toUrduDigits(ramadanDay.toString())} رمضان ١٤٤٧ ہجری`;
+
+        tracker.innerText = `🌙 Ramadan: ${ramadanDay} | Taraweeh: ${taraweeh}`;
     }
 }
-        buildTimetable();
-        updateClocksAndEvents(); 
-        setInterval(updateClocksAndEvents, 1000);
 
-        let count = 0;
-        const countDisplay = document.getElementById('tasbeeh-count');
-        const tasbeehBtn = document.getElementById('tasbeeh-btn');
-        const resetBtn = document.getElementById('reset-btn');
+/* ---------------- CLOCK + EVENTS ---------------- */
 
-        if(tasbeehBtn && countDisplay) {
-            tasbeehBtn.addEventListener('click', () => { count++; countDisplay.innerText = count; });
+let azanPlayedFor = null;
+
+function updateClocksAndEvents(){
+
+    const now = new Date();
+
+    const time = now.toLocaleTimeString("en-US",{hour12:false});
+    document.getElementById("eng-clock").innerText = time;
+    document.getElementById("urdu-clock").innerText = toUrduDigits(time);
+
+    setCustomDates(now);
+
+    const todayStr = getLocalDateString(now);
+    const today = schedule.find(d=>d.date===todayStr);
+
+    if(!today) return;
+
+    const suhoorTime = parseSafeDate(todayStr,today.suhoor);
+    const iftarTime = parseSafeDate(todayStr,today.iftar);
+
+    let targetTime;
+    let eventType;
+
+    if(now < suhoorTime){
+        targetTime = suhoorTime;
+        eventType = "suhoor";
+    }
+    else if(now < iftarTime){
+        targetTime = iftarTime;
+        eventType = "iftar";
+    }
+    else{
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate()+1);
+
+        const tomorrowStr = getLocalDateString(tomorrow);
+        const tomorrowData = schedule.find(d=>d.date===tomorrowStr);
+
+        if(!tomorrowData) return;
+
+        targetTime = parseSafeDate(tomorrowStr,tomorrowData.suhoor);
+        eventType = "suhoor";
+    }
+
+    document.getElementById("next-event").innerHTML = duas[eventType].title;
+    document.getElementById("target-time").innerText =
+        `Time: ${targetTime.toLocaleTimeString("en-US",{hour12:true})}`;
+
+    document.getElementById("dua-title").innerText =
+        `Dua for ${eventType.charAt(0).toUpperCase()+eventType.slice(1)}`;
+
+    document.getElementById("dua-arabic").innerText = duas[eventType].arabic;
+    document.getElementById("dua-translit").innerText = duas[eventType].translit;
+    document.getElementById("dua-translat").innerText = duas[eventType].translat;
+    document.getElementById("dua-urdu").innerText = duas[eventType].urdu;
+
+    const diff = Math.max(0,targetTime-now);
+
+    const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const m = Math.floor((diff%(1000*60*60))/(1000*60));
+    const s = Math.floor((diff%(1000*60))/1000);
+
+    const countdown =
+        `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+
+    document.getElementById("countdown-eng").innerText = countdown;
+    document.getElementById("countdown-urdu").innerText = toUrduDigits(countdown);
+
+    /* ---- EVENT TRIGGER ---- */
+
+    if(h===0 && m===0 && s===0 && diff<1000){
+
+        const key = `${eventType}-${targetTime.getTime()}`;
+
+        if(azanPlayedFor!==key){
+
+            if(eventType==="suhoor"){
+                if(!azanMuted){
+                    azanAudio.play().catch(()=>{});
+                }
+            }
+
+            if(eventType==="iftar"){
+                showIftarPopup();
+            }
+
+            azanPlayedFor = key;
         }
-        if(resetBtn && countDisplay) {
-            resetBtn.addEventListener('click', () => { count = 0; countDisplay.innerText = count; });
-        }
+    }
+}
+
+/* ---------------- INIT ---------------- */
+
+buildTimetable();
+updateClocksAndEvents();
+setInterval(updateClocksAndEvents,1000);
+
+/* ---------------- TASBEEH ---------------- */
+
+let count=0;
+
+const display = document.getElementById("tasbeeh-count");
+
+document.getElementById("tasbeeh-btn").onclick = ()=>{
+    count++;
+    display.innerText = count;
+};
+
+document.getElementById("reset-btn").onclick = ()=>{
+    count=0;
+    display.innerText=0;
+};
     </script>
 <div id="iftar-popup">
     <div class="popup-content">
