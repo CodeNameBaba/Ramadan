@@ -1,6 +1,5 @@
 <!DOCTYPE html>  <html lang="en">  
 <head>  
-<!-- Google tag (gtag.js) -->  
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XT9HCZBFTG"></script>  
 <script>  
   window.dataLayer = window.dataLayer || [];  
@@ -96,34 +95,114 @@
     }  
 
     .header-kalma {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    
-    height: 140px;
-    width: auto;
-    object-fit: contain;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 140px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 3px 12px rgba(255,255,255,0.25));
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
 
-    filter: drop-shadow(0 3px 12px rgba(255,255,255,0.25));
-    transition: transform 0.3s ease, filter 0.3s ease;
-}
+    .header-kalma:hover {
+        transform: translateX(-50%) scale(1.05);
+        filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
+    }
 
-.header-kalma:hover {
-    transform: translateX(-50%) scale(1.05);
-    filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
-}
+    /* --- MOON ANIMATION CSS --- */
+    .moon-container {
+        position: absolute;
+        top: 90px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+        z-index: -1;
+        animation: floatMoon 4s ease-in-out infinite alternate;
+        opacity: 0.8;
+    }
 
-filter: drop-shadow(0 3px 12px rgba(255,255,255,0.25));
+    .crescent-moon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        box-shadow: 10px 10px 0 0 #f6f1d5;
+        filter: drop-shadow(0 0 15px rgba(246, 241, 213, 0.5));
+        transform: rotate(-20deg);
+    }
 
-transition: transform 0.3s ease, filter 0.3s ease;
-}
+    @keyframes floatMoon {
+        0% { transform: translateY(0) rotate(0deg) scale(1); filter: drop-shadow(0 0 10px rgba(246, 241, 213, 0.4)); }
+        100% { transform: translateY(-8px) rotate(5deg) scale(1.05); filter: drop-shadow(0 0 25px rgba(246, 241, 213, 0.8)); }
+    }
 
-.header-kalma:hover {
-transform: scale(1.05);
-filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
-}
+    /* --- PREMIUM IFTAR NOTIFICATION CSS --- */
+    .premium-notification {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        background: rgba(5, 10, 5, 0.95);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 2px solid var(--neon-dark-green);
+        box-shadow: 0 0 40px rgba(0, 250, 0, 0.5), inset 0 0 20px rgba(0, 250, 0, 0.2);
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        width: 85%;
+        max-width: 450px;
+    }
 
-.view-section {  
+    .premium-notification.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .premium-notification h2 {
+        font-family: 'Poppins', sans-serif;
+        color: var(--neon-dark-green);
+        margin-bottom: 5px;
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+        text-shadow: var(--neon-glow);
+    }
+
+    .premium-notification h1 {
+        font-family: 'Amiri', serif;
+        color: #fff;
+        font-size: 2.8rem;
+        margin: 15px 0 25px 0;
+        text-shadow: 0 0 15px rgba(255,255,255,0.4);
+        line-height: 1.2;
+    }
+
+    .close-notification {
+        background: linear-gradient(45deg, var(--neon-dark-green), #00aa00);
+        color: #000;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(0, 250, 0, 0.4);
+        letter-spacing: 1px;
+    }
+
+    .close-notification:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 250, 0, 0.6);
+    }
+
+    .view-section {  
         display: none; animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);  
     }  
     .view-section.active {  
@@ -257,8 +336,19 @@ filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
     <img src="kalma-image.png" alt="Kalmah" class="header-kalma">  
 </nav>  
 
+<div id="iftar-notification" class="premium-notification">
+    <h2>Rozedaron, Roza Iftar Kijiye!</h2>
+    <h1>روزہ داروں، روزہ افطار کیجیے!</h1>
+    <p style="color: #ccc; font-weight: 300; font-size: 0.95rem; margin-bottom: 25px;">May Allah accept your fast.</p>
+    <button class="close-notification" onclick="closeNotification()">Alhamdulillah</button>
+</div>
+
 <main>  
     <div id="home-view" class="view-section active">  
+        <div class="moon-container">
+            <div class="crescent-moon"></div>
+        </div>
+
         <div class="location-date metallic-text">  
             <p style="font-size: 1.15rem; font-weight: 400; margin-bottom: 5px; letter-spacing: 1px;">📍 Chhapara, Seoni</p>  
             <p id="gregorian-date" style="color: #bbb; font-size: 0.95rem; margin-top: 0;"></p>  
@@ -387,6 +477,15 @@ filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
         document.getElementById('menu-checkbox').checked = false;  
         window.scrollTo({ top: 0, behavior: 'smooth' });  
     }  
+
+    // New functions for the Iftar Notification
+    function showIftarNotification() {
+        document.getElementById('iftar-notification').classList.add('show');
+    }
+
+    function closeNotification() {
+        document.getElementById('iftar-notification').classList.remove('show');
+    }
 
     const azanAudio = document.getElementById('azan-audio');  
     let azanMuted = false;  
@@ -606,12 +705,15 @@ filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
         document.getElementById('countdown-eng').innerText = countdownStr;  
         document.getElementById('countdown-urdu').innerText = toUrduDigits(countdownStr);  
 
+        // Trigger Azan or Notification when timer hits 0
         if (hours === 0 && minutes === 0 && seconds === 0 && diffMs < 1000) {  
             const eventKey = `${eventType}-${targetTime.getTime()}`;  
             if (azanPlayedFor !== eventKey) {  
-                if (!azanMuted && eventType === 'suhoor') {  
-                    azanAudio.play().catch(()=>{});  
-                }  
+                if (eventType === 'suhoor') {
+                    if (!azanMuted) azanAudio.play().catch(()=>{});  
+                } else if (eventType === 'iftar') {
+                    showIftarNotification();
+                }
                 azanPlayedFor = eventKey;   
             }  
         }  
