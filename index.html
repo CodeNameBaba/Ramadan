@@ -99,8 +99,22 @@
         }
 
         .header-kalma {
-            height: 40px; margin-right: 50px; object-fit: contain; filter: drop-shadow(0px 2px 10px rgba(255, 255, 255, 0.15));
-        }
+    display: block;
+    height: 60px;              
+    width: auto;
+    margin: 0 auto;            
+    object-fit: contain;
+    
+    
+    filter: drop-shadow(0 3px 12px rgba(255,255,255,0.25));
+    
+   transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.header-kalma:hover {
+    transform: scale(1.05); 
+    filter: drop-shadow(0 4px 16px rgba(255,255,255,0.35));
+}
 
         .view-section {
             display: none; animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
